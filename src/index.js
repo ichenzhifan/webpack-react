@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
-import { autobind } from 'core-decorators'
+import { Provider, connect } from 'react-redux';
+import store from './redux';
+
+import { autobind } from 'core-decorators';
+import List from './components/list';
+
+import { add } from './models/user';
 
 import './index.scss';
 
@@ -8,21 +14,29 @@ const Wrap = Comp => {
 	return class extends Component {
 		render() {
 			return <Comp {...this.props} />;
-		} 
+		}
 	};
 };
 
 const log = (target, name, descriptor) => {
 	const oldValue = descriptor.value;
 
-	descriptor.value = function(...rest){
+	descriptor.value = function(...rest) {
 		console.log(`Calling ${name} with`);
 		return oldValue.apply(this, rest);
-	}
+	};
 
 	return descriptor;
-}
+};
 
+const mapStateToProps = state => ({
+	users: state.user
+});
+
+@connect(
+	mapStateToProps,
+	{ addUser: add }
+)
 @Wrap
 class Home extends Component {
 	constructor(props) {
@@ -34,15 +48,25 @@ class Home extends Component {
 
 	@autobind
 	@log
-	add(){
+	add() {
 		return alert(this.a + this.b);
 	}
 
 	render() {
 		const obj = Object.assign({}, { a: 1 });
 
-		return <h1 onClick={this.add}>this is home</h1>;
+		const listProps = {
+			users: this.props.users,
+			addUsers: this.props.addUser
+		};
+
+		return <List {...listProps} />;
 	}
 }
 
-ReactDom.render(<Home />, document.getElementById('app'));
+ReactDom.render(
+	<Provider store={store}>
+		<Home />
+	</Provider>,
+	document.getElementById('app')
+);
