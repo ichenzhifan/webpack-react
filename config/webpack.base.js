@@ -1,0 +1,79 @@
+const path = require('path');
+const htmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const merge = require('webpack-merge');
+// 将所有的入口 chunk(entry chunks)中引用的 *.css，移动到独立分离的 CSS 文件
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const devConfig = require('./webpack.dev');
+const proConfig = require('./webpack.pro');
+
+const getBaseConfig = devMode => {
+  return {
+    entry: {
+      main: './src/index.js'
+    },
+    output: {
+      path: path.resolve(__dirname, '../dist'),
+      filename: devMode ? '[name].js' : '[name]_[hash].js'
+    },
+    module: {
+      rules: [
+        {
+          test: /\.s?css$/,
+          use: [
+            {
+              loader: MiniCssExtractPlugin.loader,
+              options: {
+                hmr: devMode
+              }
+            },
+            'css-loader',
+            'postcss-loader',
+            'sass-loader'
+          ]
+        },
+        {
+          test: /\.(png|jpe?g|gif)$/,
+          use: {
+            loader: 'url-loader',
+            options: {
+              name: '[name]_[hash].[ext]',
+              outputPath: 'images/',
+              limit: 12288
+            }
+          }
+        },
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader'
+          }
+        }
+      ]
+    },
+    plugins: [
+      new htmlWebpackPlugin({
+        title: 'webpack',
+        filename: 'index.html',
+        template: './index.html'
+      }),
+      new MiniCssExtractPlugin({
+        // 这里的配置和webpackOptions.output中的配置相似
+        // 即可以通过在名字前加路径，来决定打包后的文件存在的路径
+        filename: devMode ? 'css/[name].css' : 'css/[name].[hash].css',
+        chunkFilename: devMode ? 'css/[id].css' : 'css/[id].[hash].css'
+      }),
+      new CleanWebpackPlugin()
+    ]
+  };
+};
+
+module.exports = env => {
+  if (env && env.production) {
+    return merge(getBaseConfig(false), proConfig);
+  } else {
+    return merge(getBaseConfig(true), devConfig);
+  }
+};
