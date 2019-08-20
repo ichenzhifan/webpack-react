@@ -1,4 +1,5 @@
 import thunk from 'redux-thunk';
+import { Map } from 'immutable';
 import { compose, createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 
@@ -11,7 +12,7 @@ if (process.env.NODE_ENV === 'production') {
   storeEnhancers = compose(composeWithDevTools(applyMiddleware(thunk)));
 }
 
-const configureStore = (initialState = {}) => {
+const configureStore = (initialState = Map({})) => {
   const store = createStore(rootReducer, initialState, storeEnhancers);
 
   if (module.hot && process.env.NODE_ENV !== 'production') {

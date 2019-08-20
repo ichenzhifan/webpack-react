@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Item from './item';
 import emitter from '../utils/event';
+import { Map } from 'immutable';
 
 export default props => {
 	const [items, setItems] = useState(props.users);
@@ -9,10 +10,12 @@ export default props => {
 		const { name, age, cb } = data;
 		console.log('items', items);
 
-		props.addUsers({
-			name: `${name}-copy`,
-			age
-		});
+		props.addUsers(
+			Map({
+				name: `${name}-copy`,
+				age
+			})
+		);
 
 		setTimeout(function() {
 			// cb && cb.apply(this);
@@ -20,8 +23,8 @@ export default props => {
 	};
 
 	useEffect(() => {
-		setItems([...props.users]);
-	}, [props.users.length]);
+		setItems(props.users);
+	}, [props.users.size]);
 
 	useEffect(() => {
 		const ev = emitter.once('on-click-item', fn);
@@ -32,6 +35,12 @@ export default props => {
 	});
 
 	return items.map((item, index) => {
-		return <Item key={index} {...item} />;
+		const itemProps = {
+			name: item.get('name'),
+			age: item.get('age'),
+			key: index
+		};
+
+		return <Item {...itemProps} />;
 	});
 };

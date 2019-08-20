@@ -6,9 +6,9 @@ import store from './redux';
 import { autobind } from 'core-decorators';
 import List from './components/list';
 
-import { add } from './models/user';
-
 import './index.scss';
+import {mapStateToProps} from './selector/state';
+import {mapDispatchToProps} from './selector/dispatch';
 
 const Wrap = Comp => {
 	return class extends Component {
@@ -29,14 +29,7 @@ const log = (target, name, descriptor) => {
 	return descriptor;
 };
 
-const mapStateToProps = state => ({
-	users: state.user
-});
-
-@connect(
-	mapStateToProps,
-	{ addUser: add }
-)
+@connect(mapStateToProps,	mapDispatchToProps)
 @Wrap
 class Home extends Component {
 	constructor(props) {
@@ -57,7 +50,7 @@ class Home extends Component {
 
 		const listProps = {
 			users: this.props.users,
-			addUsers: this.props.addUser
+			addUsers: this.props.userActions.add
 		};
 
 		return <List {...listProps} />;
