@@ -66,7 +66,36 @@ const getBaseConfig = devMode => {
         chunkFilename: devMode ? 'css/[id].css' : 'css/[id].[hash].css'
       }),
       new CleanWebpackPlugin()
-    ]
+    ],
+    optimization: {
+      // 启动摇树功能.
+      usedExports: true,
+
+      // 代码拆分.
+      splitChunks: {
+        chunks: 'all',
+        // 50kb
+        minSize: 102400,
+
+        // 150kb
+        maxSize: 153600,
+
+        name: true,
+
+        // 以_连接.
+        automaticNameDelimiter: '_',
+
+        cacheGroups: {
+          // Create a vendors chunk, which includes all code 
+          // from node_modules in the whole application.
+          commons: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all'
+          }
+        }
+      }
+    }
   };
 };
 

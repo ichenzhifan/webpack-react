@@ -10,6 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "sideEffects": ["*.css", "@babel/polyfill"],
   "dependencies": {
     "axios": "^0.19.0",
     "core-decorators": "^0.20.0",
